@@ -1,6 +1,3 @@
-// TetrisIGuess.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 #include <vector>
 #include <Windows.h>
@@ -15,7 +12,7 @@ int lineClears = 0;
 
 int score = 0;
 
-bool keys[4];
+bool keys[5];
 
 int fieldWidth = 12;
 int fieldHeight = 18;
@@ -25,10 +22,13 @@ int screenWidth = 80;
 int screenHeight = 30;
 
 int currTetromino = 0;
+int heldTetromino = -1;
+char heldChar = ' ';
 int currPosX = 4;
 int currPosY = 0;
 int currRotation = 0;
 bool rotationLocked = false;
+bool swapLocked = false;
 
 int tickCount = 0;
 int tickLimit = 20;
@@ -136,6 +136,7 @@ int main()
 	SetConsoleActiveScreenBuffer(console);
 	DWORD bytesWritten = 0;
 
+	for (int i = 0; i < 4; i++) screen[2 * screenWidth + (fieldWidth + 5 + i)] = "HELD"[i];
 	for (int i = 0; i < 5; i++) screen[11 * screenWidth + (fieldWidth + 5 + i)] = "SCORE"[i];
 	for (int i = 0; i < 5; i++) screen[14 * screenWidth + (fieldWidth + 5 + i)] = "LEVEL"[i];
 
@@ -199,11 +200,11 @@ int main()
 					if (currPosY + y < fieldHeight - 1) addLine(currPosY + y);
 				}
 				
+				// Generate new tetromino at starting position
 				if (remainingTetrominos.empty())
 					for (int i = 0; i < 7; i++)
 						remainingTetrominos.push_back(i);
 
-				// Generate new tetromino at starting position
 				auto it = remainingTetrominos.begin() + rand() % remainingTetrominos.size();
 				currTetromino = *it;
 				remainingTetrominos.erase(it);
@@ -219,27 +220,27 @@ int main()
 
 
 		// Input
-		for (int k = 0; k < 4; k++)
-			keys[k] = (0x8000 & GetAsyncKeyState((unsigned char)"\x25\x27\x28\x26"[k])) != 0;
+		for (int k = 0; k < 5; k++)
+			keys[k] = (0x8000 & GetAsyncKeyState((unsigned char)"\x41\x44\x53\x57\x52"[k])) != 0;
 
 
 		// Game logic
-		if (keys[0]) // Left
+		if (keys[0]) // A/Left
 		{
 			if (pieceFits(currTetromino, currRotation, currPosX - 1, currPosY))
 				currPosX --;
 		}
-		if (keys[1]) // Right
+		if (keys[1]) // D/Right
 		{
 			if (pieceFits(currTetromino, currRotation, currPosX + 1, currPosY))
 				currPosX ++;
 		}
-		if (keys[2]) // Down
+		if (keys[2]) // S/Down
 		{
 			if (pieceFits(currTetromino, currRotation, currPosX, currPosY + 1))
 				currPosY++;
 		}
-		if (keys[3]) // Up
+		if (keys[3]) // W/Rotate
 		{
 			if (!rotationLocked && pieceFits(currTetromino, currRotation + 1, currPosX, currPosY))
 			{
@@ -248,6 +249,42 @@ int main()
 			}
 		}
 		else rotationLocked = false;
+
+		if (keys[4]) // R/Swap
+		{
+			if (!swapLocked)
+			{
+				if (heldTetromino >= 0 && pieceFits(heldTetromino, 0, currPosX, currPosY))
+				{
+					int temp = heldTetromino;
+					heldTetromino = currTetromino;
+					currTetromino = temp;
+
+					currRotation = 0;
+				}
+				else
+				{
+					heldTetromino = currTetromino;
+
+					// Generate new tetromino at starting position
+					if (remainingTetrominos.empty())
+						for (int i = 0; i < 7; i++)
+							remainingTetrominos.push_back(i);
+
+					auto it = remainingTetrominos.begin() + rand() % remainingTetrominos.size();
+					currTetromino = *it;
+					remainingTetrominos.erase(it);
+					currPosX = 4;
+					currPosY = 0;
+					currRotation = 0;
+
+					// End game if tetromino at starting position doesn't fit
+					if (!pieceFits(currTetromino, currRotation, currPosX, currPosY)) done = true;
+				}
+			}
+			swapLocked = true;
+		}
+		else swapLocked = false;
 
 
 		// Render output
@@ -273,6 +310,16 @@ int main()
 					field[(fieldHeight - 1) * fieldWidth + (currPosX + x)] = 9;
 				}
 
+		// Draw held piece
+		if (heldTetromino >= 0)
+		{
+			heldChar = "ABCDEFG"[heldTetromino];
+			for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
+					screen[(4 + y) * screenWidth + (fieldWidth + 5 + x)] = tetrominos[heldTetromino][getRotatedIndex(x, y, 0)] == 'X' ? heldChar : ' ';
+		}
+
+
 		// Print score and level
 		sprintf_s(buffer, "%5d", score);
 		std::string scoreStr(buffer);
@@ -287,7 +334,9 @@ int main()
 	}
 
 	// Game over screen
+	for (int i = 0; i < 9; i++) screen[2 * screenWidth + (fieldWidth + 5 + i)] = ' ';
 	for (int i = 0; i < 9; i++) screen[4 * screenWidth + (fieldWidth + 5 + i)] = "GAME OVER"[i];
+	for (int i = 0; i < 9; i++) screen[5 * screenWidth + (fieldWidth + 5 + i)] = ' ';
 	for (int i = 0; i < 11; i++) screen[6 * screenWidth + (fieldWidth + 5 + i)] = "PRESS ENTER"[i];
 	for (int i = 0; i < 7; i++) screen[7 * screenWidth + (fieldWidth + 5 + i)] = "TO EXIT"[i];
 	WriteConsoleOutputCharacterA(console, screen, screenWidth * screenHeight, { 0, 0 }, &bytesWritten);
