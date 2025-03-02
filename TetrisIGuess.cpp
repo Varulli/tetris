@@ -18,7 +18,7 @@ int fieldWidth = 12;
 int fieldHeight = 18;
 unsigned char* field = nullptr;
 
-int screenWidth = 80;
+int screenWidth = 50;
 int screenHeight = 30;
 
 int currTetromino = 0;
@@ -133,6 +133,11 @@ int main()
 	for (int i = 0; i < screenWidth * screenHeight; i++) screen[i] = ' ';
 
 	HANDLE console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	SMALL_RECT windowSize = { 0, 0, 1, 1 };
+	SetConsoleWindowInfo(console, TRUE, &windowSize);
+	SetConsoleScreenBufferSize(console, { (short)screenWidth, (short)screenHeight });
+	windowSize = { 0, 0, (short)(screenWidth - 1), (short)(screenHeight - 1) };
+	SetConsoleWindowInfo(console, TRUE, &windowSize);
 	SetConsoleActiveScreenBuffer(console);
 	DWORD bytesWritten = 0;
 
