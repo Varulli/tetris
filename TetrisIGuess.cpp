@@ -138,6 +138,8 @@ int main()
 	SetConsoleScreenBufferSize(console, { (short)screenWidth, (short)screenHeight });
 	windowSize = { 0, 0, (short)(screenWidth - 1), (short)(screenHeight - 1) };
 	SetConsoleWindowInfo(console, TRUE, &windowSize);
+	CONSOLE_CURSOR_INFO cursorInfo = { 1, false };
+	SetConsoleCursorInfo(console, &cursorInfo);
 	SetConsoleActiveScreenBuffer(console);
 	DWORD bytesWritten = 0;
 
