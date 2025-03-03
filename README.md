@@ -2,7 +2,7 @@
 
 A recreation of the video game Tetris.
 
-![tetris-demo](https://github.com/user-attachments/assets/982ab0a7-cb7c-4c6d-81d3-65bcad691e10)
+![tetris-demo](https://github.com/user-attachments/assets/f736e302-73cd-441f-a480-b40f0f15e016)
 
 ## Requirements
 
