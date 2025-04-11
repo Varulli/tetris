@@ -7,7 +7,7 @@ A recreation of the video game Tetris.
 ## Build Instructions
 
 ### Requirements
-- Windows
+- Windows 7+
 - C++ compiler
 - CMake 3.5+
 
