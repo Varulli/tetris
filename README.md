@@ -4,13 +4,20 @@ A recreation of the video game Tetris.
 
 ![tetris-demo](https://github.com/user-attachments/assets/f736e302-73cd-441f-a480-b40f0f15e016)
 
-## Requirements
+## Build Instructions
 
-- Visual Studio
+### Requirements
+- C++ compiler
+- CMake 3.5+
 
-## Usage
-
-Build and run using Visual Studio.
+### Steps
+```
+git clone https://github.com/Varulli/tetris.git
+cd tetris
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
 
 ## Controls
 
