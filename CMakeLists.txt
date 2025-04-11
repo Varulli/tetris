@@ -5,6 +5,8 @@ add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE tetris.cpp)
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE _WIN32_WINNT=0x0601)
+
 if(NOT WIN32)
     message(FATAL_ERROR "This project can only be built on Windows.")
 endif()
