@@ -7,6 +7,7 @@ A recreation of the video game Tetris.
 ## Build Instructions
 
 ### Requirements
+- Windows
 - C++ compiler
 - CMake 3.5+
 
@@ -14,7 +15,8 @@ A recreation of the video game Tetris.
 ```
 git clone https://github.com/Varulli/tetris.git
 cd tetris
-mkdir build && cd build
+mkdir build
+cd build
 cmake ..
 cmake --build .
 ```
